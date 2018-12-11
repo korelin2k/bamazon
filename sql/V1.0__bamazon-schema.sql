@@ -1,6 +1,3 @@
-drop database bamazon_db;
-create database bamazon_db;
-
 create table bamazon_db.departments(
 	`department_id` INTEGER AUTO_INCREMENT NOT NULL,
     `department_name` VARCHAR(100) NOT NULL,
