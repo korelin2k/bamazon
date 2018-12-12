@@ -12,7 +12,7 @@
         "outDir": "../build"
     },
     "files": [
-        "product.ts",
-        "index.ts"
+        "src/product.ts",
+        "src/index.ts"
     ]
 }
