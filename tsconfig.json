@@ -6,9 +6,13 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "target": "es2016",
+        "lib": [
+            "es6"
+        ],
         "outDir": "../build"
     },
     "files": [
+        "product.ts",
         "index.ts"
     ]
 }

@@ -9,11 +9,12 @@ const productDetails: Object = {
     sales: 20.00,
 }
 const newProduct: Product = new Product(productDetails);
-const testReturn = newProduct.add();
 
 describe("Product Functionality", () => {
     it("Should create a product", () => {
-        expect(testReturn).to.be.true;
+        newProduct.add().then(value => {
+            expect(value).to.be.a('number');
+        });;
     });
 
     // it("Validate Product ID", () => {

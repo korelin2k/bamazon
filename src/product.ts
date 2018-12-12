@@ -1,4 +1,4 @@
-import * as mysql from "mysql";
+import * as mysql from "promise-mysql";
 
 export class Product {
     public itemId: number;
@@ -8,7 +8,7 @@ export class Product {
     public stockQty: number;
     public sales: number;
 
-    constructor(product) {
+    constructor(product: any) {
         this.itemId = 0;
         this.productName = product.productName;
         this.deptId = product.deptId;
@@ -18,15 +18,7 @@ export class Product {
     }
 
     public add() {
-        const status: boolean = true;
-
-        const connection = mysql.createConnection({
-            database: "bamazon_db",
-            host: "localhost",
-            insecureAuth: true,
-            password: "password",
-            user: "root",
-        });
+        // const status: boolean = true;
 
         const sql = "INSERT INTO bamazon_db.products SET ?";
 
@@ -38,17 +30,24 @@ export class Product {
             stock_quantity: this.stockQty,
         };
 
-        connection.connect();
-        connection.query(sql, value, (error, results) => {
-            if (error) {
-                throw error;
-            }
-
-            this.itemId = results.insertId;
+        return new Promise((resolve) => {
+            mysql.createConnection({
+                database: "bamazon_db",
+                host: "localhost",
+                insecureAuth: true,
+                password: "password",
+                user: "root",
+            }).then((conn) => {
+                const result = conn.query(sql, value);
+                conn.end();
+                return result;
+            }).then((results) => {
+                this.itemId = results.insertId;
+                resolve(results.insertId);
+            }).catch(() => {
+                resolve(false);
+            });
         });
-
-        connection.end();
-        return status;
     }
 
     public remove() {
