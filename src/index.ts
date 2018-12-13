@@ -1,21 +1,17 @@
-import * as mysql from "promise-mysql";
-import { Product } from "./product";
-import { displayTable, populateProducts } from "./products";
+import { Inventory } from "./inventory";
 
-let products: Product[] = [];
+const inventory = new Inventory();
 
-populateProducts().then((value: Product[]) => {
-    products = value;
-
-    products[1].addInv(2).then(() => {
+inventory.populateInventory().then(() => {
+    inventory.products[1].addInv(2).then(() => {
         console.log("Values added!");
 
-        displayTable("customer").then((value2: string) => {
+        inventory.displayInventory("customer").then((value2: string) => {
             console.log(value2.toString());
-        });
 
-        displayTable("manager").then((value3: string) => {
-            console.log(value3.toString());
+            inventory.displayInventory("manager").then((value3: string) => {
+                console.log(value3.toString());
+            });
         });
     });
 });
