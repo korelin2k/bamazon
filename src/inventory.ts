@@ -5,12 +5,21 @@ import { Product } from "./product";
 export class Inventory {
     public products: Product[] = [];
 
-    public populateInventory() {
+    public populateInventory(all: boolean) {
         this.products = [];
 
+        let sql: string;
+
         return new Promise((resolve) => {
-            const sql = `SELECT * FROM bamazon_db.products INNER JOIN
-            bamazon_db.departments ON bamazon_db.products.department_id=bamazon_db.departments.department_id`;
+
+            if (all) {
+                sql = `SELECT * FROM bamazon_db.products INNER JOIN
+                bamazon_db.departments ON bamazon_db.products.department_id=bamazon_db.departments.department_id`;
+            } else {
+                sql = `SELECT * FROM bamazon_db.products INNER JOIN
+                bamazon_db.departments ON bamazon_db.products.department_id=bamazon_db.departments.department_id
+                WHERE bamazon_db.products.stock_quantity <= 5`;
+            }
 
             mysql.createConnection({
                 database: "bamazon_db",
@@ -26,7 +35,7 @@ export class Inventory {
                 let i: number = 0;
                 for (i; i < results.length; i++) {
                     const product = {
-                        deptId: results[i].department_name,
+                        deptId: `${results[i].department_name}(${results[i].department_id})`,
                         price: results[i].price,
                         productName: results[i].product_name,
                         sales: results[i].product_sales,
@@ -45,9 +54,9 @@ export class Inventory {
         });
     }
 
-    public displayInventory(method: string) {
+    public displayInventory(method: string, all: boolean) {
         return new Promise((resolve) => {
-            this.populateInventory().then(() => {
+            this.populateInventory(all).then(() => {
                 let table: Table;
 
                 if (method === "customer") {
@@ -64,21 +73,24 @@ export class Inventory {
 
                 let i: number = 0;
                 for (i; i < this.products.length; i++) {
+                    const itemInc = (i + 1);
 
                     if (method === "customer") {
                         table.push(
-                            [this.products[i].itemId, this.products[i].productName,
+                            [itemInc, this.products[i].productName,
                             this.products[i].deptId, this.products[i].price],
                         );
                     } else if (method === "manager") {
                         table.push(
-                            [this.products[i].itemId, this.products[i].productName,
+                            [itemInc, this.products[i].productName,
                             this.products[i].deptId, this.products[i].price, this.products[i].stockQty],
                         );
                     }
                 }
 
                 resolve(table);
+            }).catch((error) => {
+                resolve(false);
             });
         });
     }
