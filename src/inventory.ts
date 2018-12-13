@@ -9,7 +9,8 @@ export class Inventory {
         this.products = [];
 
         return new Promise((resolve) => {
-            const sql = "SELECT * FROM bamazon_db.products";
+            const sql = `SELECT * FROM bamazon_db.products INNER JOIN
+            bamazon_db.departments ON bamazon_db.products.department_id=bamazon_db.departments.department_id`;
 
             mysql.createConnection({
                 database: "bamazon_db",
@@ -25,7 +26,7 @@ export class Inventory {
                 let i: number = 0;
                 for (i; i < results.length; i++) {
                     const product = {
-                        deptId: results[i].department_id,
+                        deptId: results[i].department_name,
                         price: results[i].price,
                         productName: results[i].product_name,
                         sales: results[i].product_sales,
