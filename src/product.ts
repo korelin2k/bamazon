@@ -102,11 +102,11 @@ export class Product {
         });
     }
 
-    public addInv(qty: number) {
+    public addInv(qty: string) {
         const sql = "UPDATE bamazon_db.products SET stock_quantity = ? WHERE item_id = ?";
 
         return new Promise((resolve) => {
-            this.stockQty = this.stockQty + qty;
+            this.stockQty = this.stockQty + parseInt(qty, 10);
 
             const value = [this.stockQty, this.itemId];
 

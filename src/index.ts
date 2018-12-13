@@ -53,22 +53,6 @@ function manager() {
             type: "list",
         },
         {
-            message: "What item ID do you want to add inventory to?",
-            name: "id",
-            type: "input",
-            when(res: inquirer.Answers) {
-                return (res.mgrChoice === "Add to Inventory");
-            },
-        },
-        {
-            message: "How many units do you want to add?",
-            name: "qty",
-            type: "input",
-            when(res: inquirer.Answers) {
-                return (res.mgrChoice === "Add to Inventory");
-            },
-        },
-        {
             message: "What's the product name?",
             name: "prodName",
             type: "input",
@@ -103,51 +87,69 @@ function manager() {
     ];
 
     inquirer.prompt(questionType).then((res: inquirer.Answers) => {
-        switch (res.mgrChoice) {
-            case "View Products for Sale":
-                inventory.displayInventory("manager", true).then((value) => {
-                    console.log("\n\n\n" + value.toString() + "\n\n\n\n\n\n");
-                });
-                break;
-            case "View Low Inventory":
-                inventory.displayInventory("manager", false).then((value) => {
-                    console.log("\n\n\n" + value.toString() + "\n\n\n\n\n\n");
+        if (res.mgrChoice === "View Products for Sale") {
+            inventory.displayInventory("manager", true).then((value) => {
+                console.log("\n\n\n" + value.toString() + "\n\n\n\n\n\n");
+                manager();
+            });
+        } else if (res.mgrChoice === "View Low Inventory") {
 
-                    // Reset inventory with everything
-                    inventory.populateInventory(true);
-                });
-
-                break;
-            case "Add to Inventory":
-                const id = (res.id - 1);
-                const qty = res.qty;
-
-                console.log(id, qty);
-
-                inventory.products[id].addInv(qty).then(() => {
-                    console.log("\n\n\n" + "More inventory added!" + "\n\n\n");
-                });
+            inventory.displayInventory("manager", false).then((value) => {
+                console.log("\n\n\n" + value.toString() + "\n\n\n\n\n\n");
 
                 // Reset inventory with everything
                 inventory.populateInventory(true);
-                break;
-            case "Add New Product":
-                const newProduct = {
-                    deptId: res.prodDept,
-                    price: res.prodPrice,
-                    productName: res.prodName,
-                    sales: 0,
-                    stockQty: res.prodQty,
-                };
+                manager();
+            });
 
-                const createProduct: Product = new Product(newProduct);
-                createProduct.add().then(() => {
-                    console.log("\n\n\n" + "Product Added!" + "\n\n\n");
+        } else if (res.mgrChoice === "Add to Inventory") {
+            inventory.displayInventory("manager", true).then((value) => {
+                console.log("\n\n\n" + value.toString() + "\n\n\n");
+
+                const addQuestions: inquirer.Questions = [
+                    {
+                        message: "What item ID do you want to add inventory to?",
+                        name: "id",
+                        type: "input",
+                    },
+                    {
+                        message: "How many units do you want to add?",
+                        name: "qty",
+                        type: "input",
+                    },
+                ];
+
+                inquirer.prompt(addQuestions).then((resAdd: inquirer.Answers) => {
+                    const id = (resAdd.id - 1);
+                    const qty = resAdd.qty;
+
+                    console.log(id, qty);
+
+                    inventory.products[id].addInv(qty).then(() => {
+                        console.log("\n\n\n" + "More inventory added!" + "\n\n\n");
+
+                        inventory.populateInventory(true);
+
+                        manager();
+                    });
                 });
-                break;
-        }
+            });
+        } else if (res.mgrChoice === "Add New Product") {
+            const newProduct = {
+                deptId: res.prodDept,
+                price: res.prodPrice,
+                productName: res.prodName,
+                sales: 0,
+                stockQty: res.prodQty,
+            };
 
-        manager();
+            const createProduct: Product = new Product(newProduct);
+            createProduct.add().then(() => {
+                console.log("\n\n\n" + "Product Added!" + "\n\n\n");
+
+                manager();
+            });
+        }
     });
 }
 
