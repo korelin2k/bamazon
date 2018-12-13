@@ -73,30 +73,32 @@ export class Product {
         const sql = "UPDATE bamazon_db.products SET stock_quantity = ?, product_sales = ? WHERE item_id = ?";
 
         return new Promise((resolve) => {
-            if (qty > this.stockQty) {
-                resolve(false);
-            } else {
-                this.stockQty = this.stockQty - qty;
-                this.sales = (qty * this.price) + this.sales;
-
-                const value = [this.stockQty, this.sales, this.itemId];
-
-                mysql.createConnection({
-                    database: "bamazon_db",
-                    host: "localhost",
-                    insecureAuth: true,
-                    password: "password",
-                    user: "root",
-                }).then((conn) => {
-                    const result = conn.query(sql, value);
-                    conn.end();
-                    return result;
-                }).then((results) => {
-                    resolve(true);
-                }).catch(() => {
+            this.getCurrentQty().then((currentQty: number) => {
+                if (qty > currentQty) {
                     resolve(false);
-                });
-            }
+                } else {
+                    this.stockQty = currentQty - qty;
+                    this.sales = (qty * this.price) + this.sales;
+
+                    const value = [this.stockQty, this.sales, this.itemId];
+
+                    mysql.createConnection({
+                        database: "bamazon_db",
+                        host: "localhost",
+                        insecureAuth: true,
+                        password: "password",
+                        user: "root",
+                    }).then((conn) => {
+                        const result = conn.query(sql, value);
+                        conn.end();
+                        return result;
+                    }).then((results) => {
+                        resolve(true);
+                    }).catch(() => {
+                        resolve(false);
+                    });
+                }
+            });
         });
     }
 
@@ -120,6 +122,30 @@ export class Product {
                 return result;
             }).then((results) => {
                 resolve(true);
+            }).catch(() => {
+                resolve(false);
+            });
+        });
+    }
+
+    public getCurrentQty() {
+        const sql = "SELECT stock_quantity FROM bamazon_db.products WHERE item_id = ?";
+
+        return new Promise((resolve) => {
+            const value = [this.itemId];
+
+            mysql.createConnection({
+                database: "bamazon_db",
+                host: "localhost",
+                insecureAuth: true,
+                password: "password",
+                user: "root",
+            }).then((conn) => {
+                const result = conn.query(sql, value);
+                conn.end();
+                return result;
+            }).then((results) => {
+                resolve(results[0].stock_quantity);
             }).catch(() => {
                 resolve(false);
             });
