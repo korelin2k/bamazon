@@ -4,7 +4,7 @@
   "description": "Fake Amazon App for class",
   "main": "index.js",
   "scripts": {
-    "prebuild": "rm -rf ../build",
+    "prebuild": "rm -rf build",
     "build": "gulp --gulpfile src/gulpfile.js",
     "pretest": "tslint -c test/tslint.json \"src/*.ts\"",
     "migrate": "flyway -X -configFile=sql/flyway.conf migrate",

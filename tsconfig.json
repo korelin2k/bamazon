@@ -13,6 +13,7 @@
     },
     "files": [
         "src/product.ts",
+        "src/products.ts",
         "src/index.ts"
     ]
 }
